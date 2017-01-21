@@ -24,11 +24,10 @@ public class Plugin extends CPlugin {
             logger.error("start() Container must privite image name!");
         }
         else {
-            List<String> envList = parseParams(this.config.getStringParam("e_params"));
-            List<String> portList = parseParams(this.config.getStringParam("p_params"));
+            List<String> envList = parseEParams(this.config.getStringParam("e_params"));
+            List<String> portList = parsePParams(this.config.getStringParam("p_params"));
             String container_id = de.createContainer(containerImage,envList,portList);
         }
-
 
         logger.info("Performance monitoring plugin initialized");
         perfMonitor = new PerfMonitor(this);
@@ -36,7 +35,29 @@ public class Plugin extends CPlugin {
         setExec(new Executor(this));
     }
 
-    private List<String> parseParams(String paramString) {
+    private List<String> parsePParams(String paramString) {
+        List<String> params = null;
+        try {
+            if(paramString != null) {
+                params = new ArrayList<>();
+                if(paramString.contains(",")){
+                    for(String param : paramString.split(",")) {
+                        params.add(param);
+                    }
+                }
+                else {
+                    params.add(paramString);
+                }
+            }
+        }
+        catch(Exception ex) {
+            logger.error("parseParams " + ex.getMessage());
+        }
+
+        return params;
+    }
+
+    private List<String> parseEParams(String paramString) {
         List<String> params = null;
         try {
             if(paramString != null) {

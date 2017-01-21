@@ -5,15 +5,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.researchworx.cresco</groupId>
-	<artifactId>cresco-skeleton-plugin</artifactId>
+	<artifactId>cresco-container-plugin</artifactId>
 	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
-	<name>Cresco Plugin Skeleton</name>
-	<description>Plugin skeleton for the Cresco Agent</description>
-	<url>https://github.com/ResearchWorx/Cresco-Skeleton-Plugin</url>
+	<name>Cresco Plugin Container</name>
+	<description>Plugin Containerfor the Cresco Agent</description>
+	<url>https://github.com/ResearchWorx/Cresco-Container-Plugin</url>
 	<scm>
-		<connection>scm:git:git://github.com/researchworx/Cresco-Skeleton-Plugin.git</connection>
+		<connection>scm:git:git://github.com/researchworx/Cresco-Container-Plugin.git</connection>
 	</scm>
 
 	<properties>
@@ -37,7 +37,6 @@
 			<artifactId>docker-client</artifactId>
 			<version>7.0.2</version>
 		</dependency>
-
 
 	</dependencies>
 
