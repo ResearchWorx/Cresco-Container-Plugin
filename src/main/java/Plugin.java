@@ -27,12 +27,17 @@ public class Plugin extends CPlugin {
             List<String> envList = parseEParams(this.config.getStringParam("e_params"));
             List<String> portList = parsePParams(this.config.getStringParam("p_params"));
             String container_id = de.createContainer(containerImage,envList,portList);
+            de.startContainer(container_id);
+            logger.info("Container initialized");
+
+            perfMonitor = new PerfMonitor(this);
+            perfMonitor.start();
+            logger.info("Container performance monitoring initialized");
+
+            setExec(new Executor(this));
         }
 
-        logger.info("Performance monitoring plugin initialized");
-        perfMonitor = new PerfMonitor(this);
-        perfMonitor.start();
-        setExec(new Executor(this));
+
     }
 
     private List<String> parsePParams(String paramString) {

@@ -73,7 +73,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<artifactId>cresco-skeleton-plugin</artifactId>
+							<artifactId>cresco-container-plugin</artifactId>
 							<Implementation-Version>${project.version}.${buildNumber}.${maven.build.timestamp}</Implementation-Version>
 						</manifestEntries>
 					</archive>
