@@ -30,6 +30,15 @@
 			<artifactId>cresco-plugin-library</artifactId>
 			<version>${cresco.plugin.library.version}</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.spotify/docker-client -->
+		<dependency>
+			<groupId>com.spotify</groupId>
+			<artifactId>docker-client</artifactId>
+			<version>7.0.2</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
