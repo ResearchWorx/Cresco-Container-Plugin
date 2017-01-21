@@ -306,11 +306,13 @@ public class DockerEngine {
         String container_id = null;
         try {
 
+            updateImage(image);
+
             ContainerConfig containerConfig = buildContainer(image,envList,portList);
             ContainerCreation creation = docker.createContainer(containerConfig);
             container_id = creation.id();
             container_ids.add(container_id);
-            updateImage(image);
+
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
@@ -365,6 +367,17 @@ public class DockerEngine {
         boolean isUpdated = false;
         try {
             docker.pull(imageName);
+            /*
+            while(!isUpdated) {
+                for(Image di : docker.listImages()) {
+                    System.out.println(di.id());
+                    if(di.id().equals(imageName)) {
+                        isUpdated = true;
+                    }
+                }
+            }
+            */
+
             isUpdated = true;
         }
         catch(Exception ex) {
