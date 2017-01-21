@@ -30,7 +30,7 @@ public class Plugin extends CPlugin {
             de.startContainer(container_id);
             logger.info("Container initialized");
 
-            perfMonitor = new PerfMonitor(this);
+            perfMonitor = new PerfMonitor(this, de, container_id);
             perfMonitor.start();
             logger.info("Container performance monitoring initialized");
 

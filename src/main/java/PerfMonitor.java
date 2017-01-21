@@ -1,4 +1,5 @@
 
+import com.google.gson.Gson;
 import com.researchworx.cresco.library.messaging.MsgEvent;
 import com.researchworx.cresco.library.plugin.core.CPlugin;
 
@@ -11,9 +12,15 @@ class PerfMonitor {
 
     private Timer timer;
     private boolean running = false;
+    private DockerEngine de;
+    private String container_id;
+    private Gson gson;
 
-    PerfMonitor(CPlugin plugin) {
+    PerfMonitor(CPlugin plugin, DockerEngine de, String container_id) {
         this.plugin = plugin;
+        this.de = de;
+        this.container_id = container_id;
+        gson = new Gson();
     }
 
     PerfMonitor start() {
@@ -58,12 +65,11 @@ class PerfMonitor {
             tick.setParam("dst_region", plugin.getRegion());
             tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
             tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
-            //tick.setParam("resource_id","sysinfo_resource");
-            //tick.setParam("inode_id","sysinfo_inode");
 
-            //for(Map.Entry<String, String> entry : builder.getSysInfoMap().entrySet()) {
-            //    tick.setParam(entry.getKey(), entry.getValue());
-            //}
+            ResourceMetric rm = de.getResourceMetric(container_id);
+            String resourceMetricJSON = gson.toJson(rm);
+
+            tick.setParam("resource_metric", resourceMetricJSON);
 
             plugin.sendMsgEvent(tick);
         }
