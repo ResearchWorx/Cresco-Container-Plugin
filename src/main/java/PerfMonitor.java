@@ -1,4 +1,3 @@
-package com.researchworx.cresco.plugins.sysinfo;
 
 import com.researchworx.cresco.library.messaging.MsgEvent;
 import com.researchworx.cresco.library.plugin.core.CPlugin;
@@ -9,14 +8,12 @@ import java.util.TimerTask;
 
 class PerfMonitor {
     private CPlugin plugin;
-    private SysInfoBuilder builder;
 
     private Timer timer;
     private boolean running = false;
 
     PerfMonitor(CPlugin plugin) {
         this.plugin = plugin;
-        builder = new SysInfoBuilder();
     }
 
     PerfMonitor start() {
@@ -59,14 +56,14 @@ class PerfMonitor {
             tick.setParam("src_agent", plugin.getAgent());
             tick.setParam("src_plugin", plugin.getPluginID());
             tick.setParam("dst_region", plugin.getRegion());
-            tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","sysinfo_resource"));
-            tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","sysinfo_inode"));
+            tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
+            tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
             //tick.setParam("resource_id","sysinfo_resource");
             //tick.setParam("inode_id","sysinfo_inode");
 
-            for(Map.Entry<String, String> entry : builder.getSysInfoMap().entrySet()) {
-                tick.setParam(entry.getKey(), entry.getValue());
-            }
+            //for(Map.Entry<String, String> entry : builder.getSysInfoMap().entrySet()) {
+            //    tick.setParam(entry.getKey(), entry.getValue());
+            //}
 
             plugin.sendMsgEvent(tick);
         }

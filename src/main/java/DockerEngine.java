@@ -237,66 +237,76 @@ public class DockerEngine {
 
     }
 
-    public String createContainer(String image, List<String> commands) {
-        String container_id = null;
+    public ContainerConfig buildContainer(String image, List<String> envList, List<String> portList) {
+        ContainerConfig containerConfig = null;
+
         try {
+            if((envList == null) && (portList == null)) {
+                HostConfig hostConfig = HostConfig.builder().build();
+                containerConfig = ContainerConfig.builder()
+                        .hostConfig(hostConfig)
+                        .image(image)
+                        .build();
+            }
+            else if((envList != null) && (portList == null)) {
+                HostConfig hostConfig = HostConfig.builder().build();
+                containerConfig = ContainerConfig.builder()
+                        .hostConfig(hostConfig)
+                        .image(image)
+                        .env(envList)
+                        .build();
+            }
+            else if((envList == null) && (portList != null)) {
 
-            docker.pull(image);
-            HostConfig hostConfig = HostConfig.builder().build();
+                Set<String> ports = new HashSet<>(portList);
+                final Map<String, List<PortBinding>> portBindings = new HashMap<>();
+                for (String port : portList) {
+                    List<PortBinding> hostPorts = new ArrayList<>();
+                    hostPorts.add(PortBinding.of("0.0.0.0", port));
+                    portBindings.put(port, hostPorts);
+                }
 
-            // Create container with exposed ports
-            ContainerConfig containerConfig = ContainerConfig.builder()
-                    .hostConfig(hostConfig)
-                    //.image("busybox:latest").exposedPorts(ports)
-                    .image(image)
-                    .cmd(commands)
-                    //.cmd("sh", "-c", "while :; do sleep 100; done")
-                    //.cmd("sh", "-c", "while :; do ls -la; done")
-                    .build();
+                HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
 
-            ContainerCreation creation = docker.createContainer(containerConfig);
-            container_id = creation.id();
-            container_ids.add(container_id);
+                containerConfig = ContainerConfig.builder()
+                        .hostConfig(hostConfig)
+                        .exposedPorts(ports)
+                        .image(image)
+                        .build();
+            }
+            else if((envList != null) && (portList != null)) {
+
+                Set<String> ports = new HashSet<>(portList);
+                final Map<String, List<PortBinding>> portBindings = new HashMap<>();
+                for (String port : portList) {
+                    List<PortBinding> hostPorts = new ArrayList<>();
+                    hostPorts.add(PortBinding.of("0.0.0.0", port));
+                    portBindings.put(port, hostPorts);
+                }
+
+                HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+
+                containerConfig = ContainerConfig.builder()
+                        .hostConfig(hostConfig)
+                        .exposedPorts(ports)
+                        .env(envList)
+                        .image(image)
+                        .build();
+            }
+
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
-        return container_id;
+        return containerConfig;
     }
 
-    public String createContainer(String image, List<String> commands, String[] ports) {
+    public String createContainer(String image, List<String> envList, List<String> portList) {
         String container_id = null;
         try {
 
-            // Bind container ports to host ports
-            //final String[] ports = {"80", "22"};
-
-            final Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            for (String port : ports) {
-                List<PortBinding> hostPorts = new ArrayList<>();
-                hostPorts.add(PortBinding.of("0.0.0.0", port));
-                portBindings.put(port, hostPorts);
-            }
-
-            /*
-            // Bind container port 443 to an automatically allocated available host port.
-            List<PortBinding> randomPort = new ArrayList<>();
-            randomPort.add(PortBinding.randomPort("0.0.0.0"));
-            portBindings.put("443", randomPort);
-            */
-
-            HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
-
-            // Create container with exposed ports
-            ContainerConfig containerConfig = ContainerConfig.builder()
-                    .hostConfig(hostConfig)
-                    //.image("busybox:latest").exposedPorts(ports)
-                    .image(image).exposedPorts(ports)
-                    .cmd(commands)
-                    //.cmd("sh", "-c", "while :; do sleep 100; done")
-                    //.cmd("sh", "-c", "while :; do ls -la; done")
-                    .build();
+            ContainerConfig containerConfig = buildContainer(image,envList,portList);
 
             ContainerCreation creation = docker.createContainer(containerConfig);
             container_id = creation.id();
@@ -312,9 +322,13 @@ public class DockerEngine {
     public boolean rmContainer(String container_id) {
         boolean isRemoved = false;
         try {
+            Thread.sleep(1000);
 
             if(docker.inspectContainer(container_id).state().running()) {
                 // Kill container
+                System.out.println(docker.inspectContainer(container_id).state().toString());
+                System.out.println(docker.inspectContainer(container_id).state().running().toString());
+
                 docker.killContainer(container_id);
             }
             // Remove container
