@@ -30,6 +30,8 @@ public class DockerEngine {
             long cpuDelta = stats.cpuStats().cpuUsage().totalUsage() - stats.precpuStats().cpuUsage().totalUsage();
             long systemDelta = stats.cpuStats().systemCpuUsage() - stats.precpuStats().systemCpuUsage();
 
+            long cpuDeleteAve = cpuDelta/100;
+
             if(cpuAve == -1) {
                 if(systemDelta == 0) {
                     cpuAve = 0.0;
@@ -117,7 +119,7 @@ public class DockerEngine {
             //long runTime, long cpuTotal, long memCurrent, long memAve, long memLimit,
             // long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal
 
-            metric = new ResourceMetric(container_id + "-" + String.valueOf(runTime), runTime, cpuTotal, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
+            metric = new ResourceMetric(container_id + "-" + String.valueOf(runTime), runTime, cpuDeleteAve, cpuTotal, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
         }
         catch(Exception ex) {
             ex.printStackTrace();
