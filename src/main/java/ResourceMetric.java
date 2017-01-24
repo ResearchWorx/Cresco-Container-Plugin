@@ -1,7 +1,7 @@
-
 public class ResourceMetric {
 
-    private String INodeId;
+    private String region;
+    private String agent;
     private long runTime;
     private double cpuAve;
     private long memCurrent;
@@ -14,8 +14,9 @@ public class ResourceMetric {
     private long networkTxTotal;
     private double workloadUtil;
 
-    public ResourceMetric(String INodeId, long runTime, double cpuAve, long memCurrent, long memAve, long memLimit, long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal) {
-        this.INodeId = INodeId;
+    public ResourceMetric(long runTime, double cpuAve, long memCurrent, long memAve, long memLimit, long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal) {
+        this.region = region;
+        this.agent = agent;
         this.runTime = runTime;
         this.cpuAve = cpuAve;
         this.memCurrent = memCurrent;
@@ -29,18 +30,24 @@ public class ResourceMetric {
         workloadUtil = -1;
     }
 
-    public ResourceMetric(String INodeId, double workloadUtil) {
-        this.INodeId = INodeId;
+    public ResourceMetric(double workloadUtil) {
         this.workloadUtil = workloadUtil;
     }
 
-    public void setINodeId(String newINodeId) {
-        try {
-            INodeId = newINodeId;
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
-        }
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public String getAgent() {
+        return agent;
     }
 
     public long getRuntime() {
@@ -198,13 +205,10 @@ public class ResourceMetric {
         }
     }
 
-    public String getINodeId() {
-        return INodeId;
-    }
 
     @Override
     public String toString() {
-        return String.format("id=" + getINodeId() + "runtime=" + getRuntime() + " workloadcost=" + getWorkloadUtil() + " cpuave=" + getCpuAve() + " memave=" + getMemAve() + " memmax=" + getMemMax() +  " diskRead=" + getDiskRead() + " diskWrite=" + getDiskWrite() + " neworkRx=" + getNetworkRx() + " networkTx=" + getNetworkTx());
+        return String.format(  "runtime=" + getRuntime() + " workloadcost=" + getWorkloadUtil() + " cpuave=" + getCpuAve() + " memave=" + getMemAve() + " memmax=" + getMemMax() +  " diskRead=" + getDiskRead() + " diskWrite=" + getDiskWrite() + " neworkRx=" + getNetworkRx() + " networkTx=" + getNetworkTx());
     }
 
 }

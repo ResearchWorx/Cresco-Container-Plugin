@@ -13,6 +13,8 @@ public class DockerEngine {
     private DockerClient docker;
     private List<String> container_ids;
 
+    private String containerImage;
+
     private long memAve = -1;
     //private long workloadCpuAve = -1;
     //private long systemCpuAve = -1;
@@ -156,7 +158,7 @@ public class DockerEngine {
             //long runTime, long cpuTotal, long memCurrent, long memAve, long memLimit,
             // long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal
 
-            metric = new ResourceMetric(container_id + "-" + String.valueOf(runTime), runTime, cpuAve, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
+            metric = new ResourceMetric(runTime, cpuAve, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
             samples++;
         }
         catch(Exception ex) {
@@ -164,7 +166,6 @@ public class DockerEngine {
         }
         return metric;
     }
-
 
     public void getStats(String container_id) {
         try {
@@ -346,7 +347,7 @@ public class DockerEngine {
     public String createContainer(String image, List<String> envList, List<String> portList) {
         String container_id = null;
         try {
-
+            containerImage = image;
             updateImage(image);
 
             ContainerConfig containerConfig = buildContainer(image,envList,portList);
