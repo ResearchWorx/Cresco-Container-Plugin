@@ -13,7 +13,7 @@ public class DockerEngine {
     private DockerClient docker;
     private List<String> container_ids;
 
-    private String containerImage;
+    public String containerImage;
 
     private long memAve = -1;
     //private long workloadCpuAve = -1;
