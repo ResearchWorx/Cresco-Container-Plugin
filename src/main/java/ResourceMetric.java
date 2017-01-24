@@ -1,9 +1,9 @@
+
 public class ResourceMetric {
 
     private String INodeId;
     private long runTime;
-    private long cpuCurrent;
-    private long cpuTotal;
+    private double cpuAve;
     private long memCurrent;
     private long memAve;
     private long memLimit;
@@ -12,12 +12,12 @@ public class ResourceMetric {
     private long diskWriteTotal;
     private long networkRxTotal;
     private long networkTxTotal;
-    private double[] points;
+    private double workloadUtil;
 
-    public ResourceMetric(String INodeId, long runTime, long cpuCurrent, long cpuTotal, long memCurrent, long memAve, long memLimit, long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal) {
+    public ResourceMetric(String INodeId, long runTime, double cpuAve, long memCurrent, long memAve, long memLimit, long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal) {
         this.INodeId = INodeId;
         this.runTime = runTime;
-        this.cpuTotal = cpuTotal;
+        this.cpuAve = cpuAve;
         this.memCurrent = memCurrent;
         this.memAve = memAve;
         this.memLimit = memLimit;
@@ -26,6 +26,12 @@ public class ResourceMetric {
         this.diskWriteTotal = diskWriteTotal;
         this.networkRxTotal = networkRxTotal;
         this.networkTxTotal = networkTxTotal;
+        workloadUtil = -1;
+    }
+
+    public ResourceMetric(String INodeId, double workloadUtil) {
+        this.INodeId = INodeId;
+        this.workloadUtil = workloadUtil;
     }
 
     public void setINodeId(String newINodeId) {
@@ -41,25 +47,12 @@ public class ResourceMetric {
         return runTime;
     }
 
-    public long getCPUtotal() {
-        return cpuTotal;
+    public double getWorkloadUtil() {
+        return workloadUtil;
     }
 
-    public long getCpuCurrent() {
-        return cpuCurrent;
-    }
-
-    public long getCPUAve() {
-        long cpu = 0;
-        try {
-            if(runTime != 0) {
-                cpu = cpuTotal / runTime;
-            }
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        return cpu;
+    public double getCpuAve() {
+        return cpuAve;
     }
 
     public long getMemAve() {
@@ -98,7 +91,7 @@ public class ResourceMetric {
         long disk = 0;
         try {
             if(runTime != 0) {
-                disk = diskReadTotal / runTime;
+                disk = diskWriteTotal / runTime;
             }
         }
         catch(Exception ex) {
@@ -134,9 +127,23 @@ public class ResourceMetric {
         return network;
     }
 
-    public void addCPU(long addCpuTotal) {
+    public void addWorkloadCost(double addWorkloadUtil) {
         try {
-            cpuTotal = (cpuTotal + addCpuTotal) / 2;
+            if(workloadUtil == -1) {
+                workloadUtil = addWorkloadUtil;
+            }
+            else {
+                workloadUtil = (workloadUtil + addWorkloadUtil) / 2;
+            }
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void addCpuAve(double addCpuAve) {
+        try {
+            cpuAve = (cpuAve + addCpuAve) / 2;
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -197,7 +204,7 @@ public class ResourceMetric {
 
     @Override
     public String toString() {
-        return String.format("id=" + getINodeId() + "runtime=" + getRuntime() + " cpu=" + getCPUAve() + " mem=" + getMemAve() + " diskRead=" + getDiskRead() + " diskWrite=" + getDiskWrite() + " neworkRx=" + getNetworkRx() + " networkTx=" + getNetworkTx());
+        return String.format("id=" + getINodeId() + "runtime=" + getRuntime() + " workloadcost=" + getWorkloadUtil() + " cpuave=" + getCpuAve() + " memave=" + getMemAve() + " memmax=" + getMemMax() +  " diskRead=" + getDiskRead() + " diskWrite=" + getDiskWrite() + " neworkRx=" + getNetworkRx() + " networkTx=" + getNetworkTx());
     }
 
 }

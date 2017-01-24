@@ -14,7 +14,10 @@ public class DockerEngine {
     private List<String> container_ids;
 
     private long memAve = -1;
+    //private long workloadCpuAve = -1;
+    //private long systemCpuAve = -1;
     private double cpuAve = -1;
+    private int samples = 0;
 
     public ResourceMetric getResourceMetric(String container_id) {
         ResourceMetric metric = null;
@@ -25,13 +28,44 @@ public class DockerEngine {
 
             ContainerStats stats = docker.stats(container_id);
             //USER_HZ is typically 1/100
-            long cpuTotal = stats.cpuStats().cpuUsage().totalUsage() / 100;
+            //long cpuTotal = stats.cpuStats().cpuUsage().totalUsage() / 100;
 
-            long cpuDelta = stats.cpuStats().cpuUsage().totalUsage() - stats.precpuStats().cpuUsage().totalUsage();
-            long systemDelta = stats.cpuStats().systemCpuUsage() - stats.precpuStats().systemCpuUsage();
+            long workloadCpuDelta = (stats.cpuStats().cpuUsage().totalUsage() - stats.precpuStats().cpuUsage().totalUsage()) /100;
+            long systemCpuDelta = (stats.cpuStats().systemCpuUsage() - stats.precpuStats().systemCpuUsage()) / 100;
 
-            long cpuDeleteAve = cpuDelta/100;
+            //System.out.println("containerDelta=" + workloadCpuDelta);
+            //System.out.println("system delta=" + systemCpuDelta);
 
+            /*
+            if(workloadCpuAve == -1) {
+                workloadCpuAve = workloadCpuDelta;
+            }
+            else {
+                workloadCpuAve = (workloadCpuAve + workloadCpuDelta)/2;
+            }
+
+            systemCpuAve = systemCpuDelta;
+            */
+
+            if(cpuAve == -1) {
+                    cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100) + cpuAve);
+
+            }
+            else {
+                    cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100) + cpuAve)/2;
+            }
+            //System.out.println("cpuAve=" + cpuAve);
+            /*
+            if(systemCpuAve == -1) {
+                systemCpuAve = systemCpuDelta;
+            }
+            else {
+                systemCpuAve = (systemCpuAve + systemCpuDelta)/2;
+            }
+            */
+            //long cpuDeltaAve = cpuDelta/100;
+            //System.out.println(cpuTotal + " " + cpuDeltaAve + " " + systemDelta);
+            /*
             if(cpuAve == -1) {
                 if(systemDelta == 0) {
                     cpuAve = 0.0;
@@ -49,8 +83,10 @@ public class DockerEngine {
                     cpuAve = ((((double)cpuDelta /(double)systemDelta) * 100) + cpuAve)/2;
                 }
             }
+            */
 
             long memCurrent = stats.memoryStats().usage();
+
 
             if(memAve == -1) {
                 memAve = stats.memoryStats().usage();
@@ -58,6 +94,7 @@ public class DockerEngine {
             else {
                 memAve = (memAve + stats.memoryStats().usage())/2;
             }
+
 
             long memLimit = stats.memoryStats().limit();
             long memMax = stats.memoryStats().maxUsage();
@@ -78,19 +115,19 @@ public class DockerEngine {
 
                 switch (op) {
                     case "Read":
-                        bRead = biocount;
+                        bRead = biocount + bRead;
                         break;
                     case "Write":
-                        bWrite = biocount;
+                        bWrite = biocount + bWrite;
                         break;
                     case "Sync":
-                        bSync = biocount;
+                        bSync = biocount + bSync;
                         break;
                     case "Async":
-                        bAsync = biocount;
+                        bAsync = biocount + bAsync;
                         break;
                     case "Total":
-                        bTotal = biocount;
+                        bTotal = biocount + bTotal;
                         break;
                 }
             }
@@ -119,13 +156,15 @@ public class DockerEngine {
             //long runTime, long cpuTotal, long memCurrent, long memAve, long memLimit,
             // long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal
 
-            metric = new ResourceMetric(container_id + "-" + String.valueOf(runTime), runTime, cpuDeleteAve, cpuTotal, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
+            metric = new ResourceMetric(container_id + "-" + String.valueOf(runTime), runTime, cpuAve, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
+            samples++;
         }
         catch(Exception ex) {
             ex.printStackTrace();
         }
         return metric;
     }
+
 
     public void getStats(String container_id) {
         try {
