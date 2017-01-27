@@ -27,7 +27,7 @@ public class ResourceMetric {
         this.diskWriteTotal = diskWriteTotal;
         this.networkRxTotal = networkRxTotal;
         this.networkTxTotal = networkTxTotal;
-        workloadUtil = -1;
+        workloadUtil = -1.0;
     }
 
     public ResourceMetric(double workloadUtil) {
@@ -136,7 +136,8 @@ public class ResourceMetric {
 
     public void addWorkloadCost(double addWorkloadUtil) {
         try {
-            if(workloadUtil == -1) {
+
+            if(workloadUtil < 0.0) {
                 workloadUtil = addWorkloadUtil;
             }
             else {

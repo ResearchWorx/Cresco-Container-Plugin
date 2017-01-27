@@ -50,8 +50,7 @@ public class DockerEngine {
             */
 
             if(cpuAve == -1) {
-                    cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100) + cpuAve);
-
+                    cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100));
             }
             else {
                     cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100) + cpuAve)/2;
