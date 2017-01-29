@@ -453,6 +453,7 @@ public class DockerEngine {
         return isStarted;
     }
 
+    /*
     public DockerEngine(String email, String username, String password, String serveraddress) {
         try {
 
@@ -472,7 +473,7 @@ public class DockerEngine {
             ex.printStackTrace();
         }
     }
-
+    */
     public DockerEngine() {
         try {
             // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
