@@ -25,7 +25,17 @@ public class Plugin extends CPlugin {
         }
         else {
             List<String> envList = parseEParams(this.config.getStringParam("e_params"));
+            if(envList != null) {
+                for (String ep : envList) {
+                    logger.info("e_param: " + ep);
+                }
+            }
             List<String> portList = parsePParams(this.config.getStringParam("p_params"));
+            if(portList != null) {
+                for (String p : portList) {
+                    logger.info("p_param: " + p);
+                }
+            }
             String container_id = de.createContainer(containerImage,envList,portList);
             de.startContainer(container_id);
             logger.info("Container initialized");
@@ -45,8 +55,8 @@ public class Plugin extends CPlugin {
         try {
             if(paramString != null) {
                 params = new ArrayList<>();
-                if(paramString.contains(",")){
-                    for(String param : paramString.split(",")) {
+                if(paramString.contains(":")){
+                    for(String param : paramString.split(":")) {
                         params.add(param);
                     }
                 }
@@ -67,8 +77,8 @@ public class Plugin extends CPlugin {
         try {
             if(paramString != null) {
                 params = new ArrayList<>();
-                if(paramString.contains(",")){
-                    for(String param : paramString.split(",")) {
+                if(paramString.contains(":")){
+                    for(String param : paramString.split(":")) {
                         String paramVal = this.config.getStringParam(param);
                         if(paramVal != null) {
                             params.add(param + "=" + paramVal);
