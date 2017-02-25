@@ -63,8 +63,10 @@ class PerfMonitor {
             tick.setParam("src_agent", plugin.getAgent());
             tick.setParam("src_plugin", plugin.getPluginID());
             tick.setParam("dst_region", plugin.getRegion());
-            tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
-            tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
+            //tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
+            //tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
+            tick.setParam("resource_id","container_resource");
+            tick.setParam("inode_id","container_inode");
             tick.setParam("container_image",de.containerImage);
             ResourceMetric rm = de.getResourceMetric(container_id);
             String resourceMetricJSON = gson.toJson(rm);
