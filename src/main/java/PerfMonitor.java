@@ -63,20 +63,22 @@ class PerfMonitor {
             tick.setParam("src_agent", plugin.getAgent());
             tick.setParam("src_plugin", plugin.getPluginID());
             tick.setParam("dst_region", plugin.getRegion());
-            //tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
-            //tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
-            tick.setParam("resource_id","container_resource");
-            tick.setParam("inode_id","container_inode");
+            tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
+            tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
+
             tick.setParam("container_image",de.containerImage);
             ResourceMetric rm = de.getResourceMetric(container_id);
             String resourceMetricJSON = gson.toJson(rm);
 
             tick.setParam("resource_metric", resourceMetricJSON);
 
+            /*
             plugin.sendMsgEvent(tick);
             //double send required to set container resource and get stats... needs to be fixed
             tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
             tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
+            */
+
             plugin.sendMsgEvent(tick);
 
         }
