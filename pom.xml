@@ -19,7 +19,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk>1.8</jdk>
-		<cresco.plugin.library.version>0.4.25</cresco.plugin.library.version>
+		<cresco.plugin.library.version>0.5.2</cresco.plugin.library.version>
 		<mojo.buildnumber.version>1.4</mojo.buildnumber.version>
 		<maven.compiler.version>3.5.1</maven.compiler.version>
 	</properties>
