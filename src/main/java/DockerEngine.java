@@ -1,14 +1,19 @@
+import com.researchworx.cresco.library.utilities.CLogger;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.messages.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
  * Created by vcbumg2 on 1/19/17.
  */
 public class DockerEngine {
+
+    private CLogger logger;
 
     private DockerClient docker;
     private List<String> container_ids;
@@ -346,6 +351,7 @@ public class DockerEngine {
     public String createContainer(String image, List<String> envList, List<String> portList) {
         String container_id = null;
         try {
+
             containerImage = image;
             updateImage(image);
 
@@ -356,8 +362,9 @@ public class DockerEngine {
 
         }
         catch(Exception ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
+            StringWriter errors = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errors));
+            logger.error("createContainer error: " + errors);
         }
         return container_id;
     }
@@ -407,7 +414,10 @@ public class DockerEngine {
     public boolean updateImage(String imageName) {
         boolean isUpdated = false;
         try {
-            docker.pull(imageName);
+
+            //todo for whatever reason this causes
+            //Invocation Exception: [initialize] method invoked on incorrect target [null]
+            //docker.pull(imageName);
             /*
             while(!isUpdated) {
                 for(Image di : docker.listImages()) {
@@ -418,12 +428,15 @@ public class DockerEngine {
                 }
             }
             */
-
+            logger.error("missed update image : " + imageName);
             isUpdated = true;
         }
         catch(Exception ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
+            StringWriter errors = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errors));
+            //return errors.toString();
+
+            logger.error("updateImage error: " + errors);
         }
         return isUpdated;
     }
@@ -474,14 +487,25 @@ public class DockerEngine {
         }
     }
     */
-    public DockerEngine() {
+    public DockerEngine(Plugin plugin) {
         try {
+            this.logger = new CLogger(plugin.getMsgOutQueue(), plugin.getRegion(), plugin.getAgent(), plugin.getPluginID(), CLogger.Level.Info);
             // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
             docker = DefaultDockerClient.fromEnv().build();
+
+            // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
+            //final DockerClient docker = DefaultDockerClient.fromEnv().build();
+
             container_ids = new ArrayList<>();
         }
         catch(Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+            StringWriter errors = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errors));
+            //return errors.toString();
+
+            System.out.println("DockerEngine error: " + errors);
+            logger.error("DockerEngine error: " + errors);
         }
     }
 

@@ -7,23 +7,29 @@ import java.util.List;
 @AutoService(CPlugin.class)
 public class Plugin extends CPlugin {
 
+
     public DockerEngine de;
     private PerfMonitor perfMonitor;
 //
 
 
+    /*
     @Override
     public void setExecutor() {
         setExec(new Executor(this));
     }
+*/
+
 
     public void start() {
 
-        de = new DockerEngine();
+
+        de = new DockerEngine(this);
+
 
         String containerImage = this.config.getStringParam("container_image");
         if(containerImage == null) {
-            logger.error("start() Container must privite image name!");
+            logger.error("start() Container must contain image name!");
         }
         else {
             List<String> envList = parseEParams(this.config.getStringParam("e_params"));
@@ -38,13 +44,23 @@ public class Plugin extends CPlugin {
                     logger.info("p_param: " + p);
                 }
             }
+
             String container_id = de.createContainer(containerImage,envList,portList);
+
+
             de.startContainer(container_id);
             logger.info("Container initialized");
 
+            //todo perfmon and docker.pull are broken on OSX
+
+/*
             perfMonitor = new PerfMonitor(this, de, container_id);
+
+
             perfMonitor.start();
             logger.info("Container performance monitoring initialized");
+*/
+
 
             setExec(new Executor(this));
         }
@@ -106,7 +122,7 @@ public class Plugin extends CPlugin {
     @Override
     public void preShutdown() {
 
-        perfMonitor.stop();
+        //perfMonitor.stop();
         de.shutdown();
 
     }
