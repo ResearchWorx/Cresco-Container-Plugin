@@ -28,7 +28,7 @@ public class Plugin extends CPlugin {
 
         //logger.info("p: " + this.config.getStringParam("p_params"));
         //logger.info("e: " + this.config.getStringParam("e_params"));
-
+        ///
 
 
         String containerImage = this.config.getStringParam("container_image");
