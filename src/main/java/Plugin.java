@@ -26,22 +26,30 @@ public class Plugin extends CPlugin {
 
         de = new DockerEngine(this);
 
+        //logger.info("p: " + this.config.getStringParam("p_params"));
+        //logger.info("e: " + this.config.getStringParam("e_params"));
+
+
 
         String containerImage = this.config.getStringParam("container_image");
         if(containerImage == null) {
             logger.error("start() Container must contain image name!");
         }
         else {
+            System.out.println("e: " + this.config.getStringParam("e_params"));
             List<String> envList = parseEParams(this.config.getStringParam("e_params"));
             if(envList != null) {
                 for (String ep : envList) {
-                    logger.info("e_param: " + ep);
+                    //logger.info("e_param: " + ep);
+                    //System.out.println("e_param: " + ep);
                 }
             }
+            System.out.println("p: " + this.config.getStringParam("p_params"));
             List<String> portList = parsePParams(this.config.getStringParam("p_params"));
             if(portList != null) {
                 for (String p : portList) {
-                    logger.info("p_param: " + p);
+                    //logger.info("p_param: " + p);
+                    //System.out.println("p_param: " + p);
                 }
             }
 
