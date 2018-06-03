@@ -26,6 +26,152 @@ public class DockerEngine {
     private double cpuAve = -1;
     private int samples = 0;
 
+    public String getPerfMetric(String container_id) {
+        ResourceMetric metric = null;
+        try {
+
+            ContainerInfo info = docker.inspectContainer(container_id);
+            long runTime = (System.currentTimeMillis() - info.state().startedAt().getTime())/1000;
+
+            ContainerStats stats = docker.stats(container_id);
+            //USER_HZ is typically 1/100
+            //long cpuTotal = stats.cpuStats().cpuUsage().totalUsage() / 100;
+
+            long workloadCpuDelta = (stats.cpuStats().cpuUsage().totalUsage() - stats.precpuStats().cpuUsage().totalUsage()) /100;
+            long systemCpuDelta = (stats.cpuStats().systemCpuUsage() - stats.precpuStats().systemCpuUsage()) / 100;
+
+            //System.out.println("containerDelta=" + workloadCpuDelta);
+            //System.out.println("system delta=" + systemCpuDelta);
+
+            /*
+            if(workloadCpuAve == -1) {
+                workloadCpuAve = workloadCpuDelta;
+            }
+            else {
+                workloadCpuAve = (workloadCpuAve + workloadCpuDelta)/2;
+            }
+
+            systemCpuAve = systemCpuDelta;
+            */
+
+            if(cpuAve == -1) {
+                cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100));
+            }
+            else {
+                cpuAve = ((((double)workloadCpuDelta /(double)systemCpuDelta) * 100) + cpuAve)/2;
+            }
+            //System.out.println("cpuAve=" + cpuAve);
+            /*
+            if(systemCpuAve == -1) {
+                systemCpuAve = systemCpuDelta;
+            }
+            else {
+                systemCpuAve = (systemCpuAve + systemCpuDelta)/2;
+            }
+            */
+            //long cpuDeltaAve = cpuDelta/100;
+            //System.out.println(cpuTotal + " " + cpuDeltaAve + " " + systemDelta);
+            /*
+            if(cpuAve == -1) {
+                if(systemDelta == 0) {
+                    cpuAve = 0.0;
+                }
+                else {
+                    cpuAve = ((((double)cpuDelta /(double)systemDelta) * 100) + cpuAve);
+                }
+
+            }
+            else {
+                if(systemDelta == 0) {
+                    cpuAve = (0.0 + cpuAve)/2;
+                }
+                else {
+                    cpuAve = ((((double)cpuDelta /(double)systemDelta) * 100) + cpuAve)/2;
+                }
+            }
+            */
+
+            long memCurrent = stats.memoryStats().usage();
+
+
+            if(memAve == -1) {
+                memAve = stats.memoryStats().usage();
+            }
+            else {
+                memAve = (memAve + stats.memoryStats().usage())/2;
+            }
+
+
+            long memLimit = stats.memoryStats().limit();
+            long memMax = stats.memoryStats().maxUsage();
+
+            List<Object> blockIo = stats.blockIoStats().ioServiceBytesRecursive();
+
+            long bRead = 0;
+            long bWrite = 0;
+            long bSync = 0;
+            long bAsync = 0;
+            long bTotal = 0;
+
+            for(Object obj : blockIo) {
+                LinkedHashMap<String, String> lhmap = (LinkedHashMap<String, String>) obj;
+                String op = lhmap.get("op");
+
+                long biocount = Long.parseLong(String.valueOf(lhmap.get("value")));
+
+                switch (op) {
+                    case "Read":
+                        bRead = biocount + bRead;
+                        break;
+                    case "Write":
+                        bWrite = biocount + bWrite;
+                        break;
+                    case "Sync":
+                        bSync = biocount + bSync;
+                        break;
+                    case "Async":
+                        bAsync = biocount + bAsync;
+                        break;
+                    case "Total":
+                        bTotal = biocount + bTotal;
+                        break;
+                }
+            }
+
+            Map<String, NetworkStats> networkIo = stats.networks();
+
+            long rxBytes = 0;
+            long rxPackets = 0;
+            long rxDropped = 0;
+            long rxErrors = 0;
+            long txBytes = 0;
+            long txPackets = 0;
+            long txDropped = 0;
+            long txErrors = 0;
+
+            for (Map.Entry<String, NetworkStats> entry : networkIo.entrySet()) {
+                rxBytes += entry.getValue().rxBytes();
+                rxPackets += entry.getValue().rxPackets();
+                rxDropped += entry.getValue().rxDropped();
+                rxErrors += entry.getValue().rxErrors();
+                txBytes += entry.getValue().txBytes();
+                txPackets += entry.getValue().txPackets();
+                txDropped += entry.getValue().txDropped();
+                txErrors += entry.getValue().txErrors();
+            }
+            //long runTime, long cpuTotal, long memCurrent, long memAve, long memLimit,
+            // long memMax, long diskReadTotal, long diskWriteTotal, long networkRxTotal, long networkTxTotal
+
+            metric = new ResourceMetric(runTime, cpuAve, memCurrent, memAve, memLimit, memMax, bRead, bWrite, rxBytes, txBytes);
+            samples++;
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return "woot";
+    }
+
+
     public ResourceMetric getResourceMetric(String container_id) {
         ResourceMetric metric = null;
         try {

@@ -62,9 +62,15 @@ class PerfMonitor {
             tick.setParam("src_region", plugin.getRegion());
             tick.setParam("src_agent", plugin.getAgent());
             tick.setParam("src_plugin", plugin.getPluginID());
+
             tick.setParam("dst_region", plugin.getRegion());
-            tick.setParam("src_agent", plugin.getAgent());
-            tick.setParam("src_plugin", "plugin/0");
+            tick.setParam("dst_agent", plugin.getAgent());
+            tick.setParam("dst_plugin", "plugin/0");
+
+            tick.setParam("is_regional",Boolean.TRUE.toString());
+            tick.setParam("is_global",Boolean.TRUE.toString());
+
+
             tick.setParam("resource_id",plugin.getConfig().getStringParam("resource_id","container_resource"));
             tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
 

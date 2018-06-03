@@ -61,13 +61,12 @@ public class Plugin extends CPlugin {
 
             //todo perfmon and docker.pull are broken on OSX
 
-/*
+
             perfMonitor = new PerfMonitor(this, de, container_id);
 
 
             perfMonitor.start();
             logger.info("Container performance monitoring initialized");
-*/
 
 
             setExec(new Executor(this));
