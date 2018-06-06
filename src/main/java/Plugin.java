@@ -2,7 +2,9 @@ import com.google.auto.service.AutoService;
 import com.researchworx.cresco.library.plugin.core.CPlugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AutoService(CPlugin.class)
 public class Plugin extends CPlugin {
@@ -10,9 +12,10 @@ public class Plugin extends CPlugin {
 
     public DockerEngine de;
     private PerfMonitor perfMonitor;
-//
 
 
+    public CrescoMeterRegistry crescoMeterRegistry;
+    public Map<String,CMetric> metricMap;
     /*
     @Override
     public void setExecutor() {
@@ -23,6 +26,8 @@ public class Plugin extends CPlugin {
 
     public void start() {
 
+        crescoMeterRegistry = new CrescoMeterRegistry(getPluginID());
+        metricMap = new HashMap<>();
 
         de = new DockerEngine(this);
 
@@ -59,7 +64,7 @@ public class Plugin extends CPlugin {
             de.startContainer(container_id);
             logger.info("Container initialized");
 
-            //todo perfmon and docker.pull are broken on OSX
+            //todo docker.pull is broken on OSX
 
 
             perfMonitor = new PerfMonitor(this, de, container_id);

@@ -16,11 +16,14 @@ class PerfMonitor {
     private String container_id;
     private Gson gson;
 
+
+
     PerfMonitor(CPlugin plugin, DockerEngine de, String container_id) {
         this.plugin = plugin;
         this.de = de;
         this.container_id = container_id;
         gson = new Gson();
+
     }
 
     PerfMonitor start() {
@@ -32,6 +35,9 @@ class PerfMonitor {
         initial.setParam("src_agent", plugin.getAgent());
         initial.setParam("src_plugin", plugin.getPluginID());
         initial.setParam("dst_region", plugin.getRegion());
+        initial.setParam("dst_agent", plugin.getAgent());
+        initial.setParam("dst_plugin", "plugin/0");
+
         plugin.sendMsgEvent(initial);
 
         timer = new Timer();
@@ -80,6 +86,9 @@ class PerfMonitor {
 
             tick.setParam("resource_metric", resourceMetricJSON);
 
+            String perfInfo = de.getContainerInfoMap();
+
+            tick.setCompressedParam("perf",perfInfo);
             /*
             plugin.sendMsgEvent(tick);
             //double send required to set container resource and get stats... needs to be fixed
