@@ -71,14 +71,6 @@ public class DockerEngine {
 
     Boolean isMetricInit = false;
 
-    private Map<String,String> getMetricMap(String name, String className, String type, String value) {
-        Map<String,String> metricValueMap = new HashMap<>();
-        metricValueMap.put("name",name);
-        metricValueMap.put("class",className);
-        metricValueMap.put("type",type);
-        metricValueMap.put("value",value);
-        return metricValueMap;
-    }
 
     public ResourceMetric getResourceMetric(String container_id) {
         ResourceMetric metric = null;
@@ -202,11 +194,14 @@ public class DockerEngine {
         try {
 
             Map<String,List<Map<String,String>>> info = new HashMap<>();
-            info.put("processor",getMetricGroupList("processor"));
+            info.put("network",getMetricGroupList("network"));
+            info.put("disk",getMetricGroupList("disk"));
             info.put("memory",getMetricGroupList("memory"));
+            info.put("processor",getMetricGroupList("processor"));
+            info.put("system",getMetricGroupList("system"));
 
             returnStr = gson.toJson(info);
-            logger.info(returnStr);
+            //logger.info(returnStr);
 
 
         } catch(Exception ex) {
@@ -261,13 +256,18 @@ public class DockerEngine {
 
             } else if (Meter.Type.valueOf(metric.className) == Meter.Type.DISTRIBUTION_SUMMARY) {
                 metricValueMap.put("name",metric.name);
-                metricValueMap.put("class",metric.className);
+
+                //metricValueMap.put("class",metric.className);
+                //todo fix this once dashboard can deal with dist summary
+                metricValueMap.put("class","TIMER");
+
                 metricValueMap.put("type",metric.type.toString());
                 metricValueMap.put("mean",String.valueOf(plugin.crescoMeterRegistry.get(metric.name).summary().mean()));
                 metricValueMap.put("max",String.valueOf(plugin.crescoMeterRegistry.get(metric.name).summary().max()));
                 metricValueMap.put("totaltime",String.valueOf(plugin.crescoMeterRegistry.get(metric.name).summary().totalAmount()));
                 metricValueMap.put("count",String.valueOf(plugin.crescoMeterRegistry.get(metric.name).summary().count()));
-
+                metricValueMap.put("baseunit",plugin.crescoMeterRegistry.get(metric.name).summary().getId().getBaseUnit());
+                metricValueMap.put("description",plugin.crescoMeterRegistry.get(metric.name).summary().getId().getDescription());
 
             } else  if (Meter.Type.valueOf(metric.className) == Meter.Type.COUNTER) {
                 metricValueMap.put("name",metric.name);
@@ -288,7 +288,6 @@ public class DockerEngine {
         }
         return metricValueMap;
     }
-
 
     private void initMetrics() {
 
@@ -318,7 +317,11 @@ public class DockerEngine {
         plugin.metricMap.put(memCurrent.getId().getName(),new CMetric(memCurrent.getId().getName(),memCurrent.getId().getDescription(),"memory",memCurrent.getId().getType().name()));
 
         plugin.crescoMeterRegistry.gauge("mem.limit", memLimit);
+        plugin.metricMap.put("mem.limit",new CMetric("mem.limit","mem.limit","memory","GAUGE"));
+
+
         plugin.crescoMeterRegistry.gauge("mem.max", memMax);
+        plugin.metricMap.put("mem.max",new CMetric("mem.max","mem.max","memory","GAUGE"));
 
 
         bRead = DistributionSummary
@@ -326,61 +329,76 @@ public class DockerEngine {
                 .description("Number of bytes read") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(bRead.getId().getName(),new CMetric(bRead.getId().getName(),bRead.getId().getDescription(),"disk",bRead.getId().getType().name()));
 
         bWrite = DistributionSummary
                 .builder("disk.bytes.write")
                 .description("Number of bytes written") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(bWrite.getId().getName(),new CMetric(bWrite.getId().getName(),bWrite.getId().getDescription(),"disk",bWrite.getId().getType().name()));
 
         bSync = DistributionSummary
                 .builder("disk.bytes.sync")
                 .description("Number of bytes sync") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(bSync.getId().getName(),new CMetric(bSync.getId().getName(),bSync.getId().getDescription(),"disk",bSync.getId().getType().name()));
 
         bAsync = DistributionSummary
                 .builder("disk.bytes.async")
                 .description("Number of bytes async") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
-
+        plugin.metricMap.put(bAsync.getId().getName(),new CMetric(bAsync.getId().getName(),bAsync.getId().getDescription(),"disk",bAsync.getId().getType().name()));
 
         bTotal = DistributionSummary
                 .builder("disk.bytes.total")
                 .description("Number of bytes total") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(bTotal.getId().getName(),new CMetric(bTotal.getId().getName(),bTotal.getId().getDescription(),"disk",bTotal.getId().getType().name()));
 
         rxBytes = DistributionSummary
                 .builder("net.rx.bytes")
                 .description("Number of RX bytes") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(rxBytes.getId().getName(),new CMetric(rxBytes.getId().getName(),rxBytes.getId().getDescription(),"network",rxBytes.getId().getType().name()));
 
         rxPackets = DistributionSummary
                 .builder("net.rx.packets")
                 .description("Number of RX packets") // optional
                 .baseUnit("packets") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(rxPackets.getId().getName(),new CMetric(rxPackets.getId().getName(),rxPackets.getId().getDescription(),"network",rxPackets.getId().getType().name()));
 
         txBytes = DistributionSummary
                 .builder("net.tx.bytes")
                 .description("Number of TX bytes") // optional
                 .baseUnit("bytes") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(txBytes.getId().getName(),new CMetric(txBytes.getId().getName(),txBytes.getId().getDescription(),"network",txBytes.getId().getType().name()));
 
         txPackets = DistributionSummary
                 .builder("net.tx.packets")
                 .description("Number of TX packets") // optional
                 .baseUnit("packets") // optional (1)
                 .register(plugin.crescoMeterRegistry);
+        plugin.metricMap.put(txPackets.getId().getName(),new CMetric(txPackets.getId().getName(),txPackets.getId().getDescription(),"network",txPackets.getId().getType().name()));
 
 
         plugin.crescoMeterRegistry.gauge("net.rx.dropped", rxDropped);
+        plugin.metricMap.put("net.rx.dropped",new CMetric("net.rx.dropped","net.rx.dropped","network","GAUGE"));
+
         plugin.crescoMeterRegistry.gauge("net.rx.errors", rxErrors);
+        plugin.metricMap.put("net.rx.errors",new CMetric("net.rx.errors","net.rx.errors","network","GAUGE"));
+
         plugin.crescoMeterRegistry.gauge("net.tx.dropped", txDropped);
+        plugin.metricMap.put("net.tx.dropped",new CMetric("net.tx.dropped","net.tx.dropped","network","GAUGE"));
+
         plugin.crescoMeterRegistry.gauge("net.tx.errors", txErrors);
+        plugin.metricMap.put("net.tx.errors",new CMetric("net.tx.errors","net.tx.errors","network","GAUGE"));
 
     }
 
