@@ -64,6 +64,33 @@ class PerfMonitor {
         }
 
         public void run() {
+
+
+            MsgEvent tick = new MsgEvent(MsgEvent.Type.KPI, plugin.getRegion(), plugin.getAgent(), plugin.getPluginID(), "Performance Monitoring tick.");
+            tick.setParam("src_region", plugin.getRegion());
+            tick.setParam("src_agent", plugin.getAgent());
+            tick.setParam("src_plugin", plugin.getPluginID());
+            tick.setParam("dst_region", plugin.getRegion());
+            tick.setParam("dst_agent", plugin.getAgent());
+            tick.setParam("dst_plugin", "plugin/0");
+            tick.setParam("is_regional", Boolean.TRUE.toString());
+            tick.setParam("is_global", Boolean.TRUE.toString());
+
+            tick.setParam("resource_id", plugin.getConfig().getStringParam("resource_id"));
+            tick.setParam("inode_id", plugin.getConfig().getStringParam("inode_id"));
+
+            ResourceMetric rm = de.getResourceMetric(container_id);
+            String resourceMetricJSON = gson.toJson(rm);
+
+            tick.setParam("resource_metric", resourceMetricJSON);
+
+            String perfInfo = de.getContainerInfoMap();
+
+            tick.setCompressedParam("perf",perfInfo);
+            plugin.sendMsgEvent(tick);
+
+            /*
+
             MsgEvent tick = new MsgEvent(MsgEvent.Type.KPI, plugin.getRegion(), plugin.getAgent(), plugin.getPluginID(), "Performance Monitoring tick.");
             tick.setParam("src_region", plugin.getRegion());
             tick.setParam("src_agent", plugin.getAgent());
@@ -89,6 +116,8 @@ class PerfMonitor {
             String perfInfo = de.getContainerInfoMap();
 
             tick.setCompressedParam("perf",perfInfo);
+            */
+
             /*
             plugin.sendMsgEvent(tick);
             //double send required to set container resource and get stats... needs to be fixed
@@ -96,7 +125,7 @@ class PerfMonitor {
             tick.setParam("inode_id",plugin.getConfig().getStringParam("inode_id","container_inode"));
             */
 
-            plugin.sendMsgEvent(tick);
+            //plugin.sendMsgEvent(tick);
 
         }
     }
